@@ -1,0 +1,5 @@
+# Block direct access to internal PHP files. Only index.php should ever
+# be reached by an HTTP request (via the root .htaccess rewrite rule).
+<Files "config.php">
+  Require all denied
+</Files>

@@ -1,0 +1,6 @@
+# Uploaded files are images only; make sure no script can ever execute here.
+<FilesMatch "\.(php|php\d|phtml|pl|py|jsp|asp|sh|cgi)$">
+  Require all denied
+</FilesMatch>
+Options -Indexes -ExecCGI
+AddHandler cgi-script .php .php3 .php4 .php5 .php7 .phtml .pl .py .jsp .asp .sh .cgi

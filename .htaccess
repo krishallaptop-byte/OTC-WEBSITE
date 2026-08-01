@@ -1,0 +1,33 @@
+# =========================================================
+# ORCHID TECH CLUB — Apache rewrite rules (cPanel compatible)
+# =========================================================
+# Routes /api/* requests to the PHP front controller and
+# /media/* requests to the physical /uploads/* files
+# (so the frontend's existing "/media/..." URLs keep working
+# unchanged even though files are now stored in /uploads/).
+# =========================================================
+
+RewriteEngine On
+
+# ---- /api/* -> api/index.php (keep the path info for routing) ----
+RewriteCond %{REQUEST_URI} ^/api/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^api/(.*)$ api/index.php [QSA,L]
+
+# ---- /media/<key> -> /uploads/<key> (public file serving) ----
+RewriteCond %{REQUEST_URI} ^/media/
+RewriteRule ^media/(.*)$ uploads/$1 [L]
+
+# ---- Security: block direct browsing of PHP internals ----
+<FilesMatch "\.(sql|md)$">
+  Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(jpg|jpeg|png|webp|gif|svg)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>
+
+# Prevent directory listing
+Options -Indexes

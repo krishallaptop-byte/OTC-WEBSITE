@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orchid Tech Club — Innovate. Build. Lead.</title>
+<meta name="description" content="Orchid Tech Club — A community of passionate learners, builders and innovators driving technology forward.">
+<link rel="icon" href="/static/images/logo.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body data-page="home">
+
+<div id="site-header"></div>
+
+<!-- HERO -->
+<section class="hero" id="hero-section">
+  <div class="container">
+    <div class="hero-logo-wrap">
+      <img src="/static/images/logo.png" alt="Orchid Tech Club" class="hero-logo" id="hero-logo">
+    </div>
+    <h1 id="hero-title">ORCHID TECH CLUB</h1>
+    <div class="tagline" id="hero-subtitle">Innovate &bull; Build &bull; Lead</div>
+    <p class="lead" id="hero-lead">A community of passionate learners, builders and innovators driving technology forward into a better tomorrow.</p>
+    <div class="hero-actions">
+      <a href="about.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Learn More</a>
+      <a href="news.html" class="btn btn-outline"><i class="fas fa-bullhorn"></i> Latest News</a>
+    </div>
+
+    <div class="stats-row" id="stats-row"></div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="section" id="about-section">
+  <div class="container">
+    <div class="about-split">
+      <div>
+        <span class="section-tag">Who We Are</span>
+        <h3 id="about-preview-title">About Us</h3>
+        <p id="about-preview-text">Orchid Tech Club is a vibrant community of tech enthusiasts united by curiosity, creativity and a passion for making an impact through technology. We bring together students from diverse backgrounds to learn, build, and grow together.</p>
+        <a href="about.html" class="btn btn-primary btn-sm">Read More</a>
+      </div>
+      <div>
+        <img id="about-preview-image" src="/static/images/first-meeting-1.jpg" alt="Club Meeting">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERTISE -->
+<section class="section section-sm">
+  <div class="container">
+    <div class="section-head center">
+      <span class="section-tag">What We Do</span>
+      <h2 class="section-title">Our Expertise</h2>
+    </div>
+    <div class="grid grid-6" id="expertise-grid"></div>
+  </div>
+</section>
+
+<!-- LATEST NEWS -->
+<section class="section">
+  <div class="container">
+    <div class="section-head between">
+      <div>
+        <span class="section-tag">Stay Updated</span>
+        <h2 class="section-title">Latest News</h2>
+      </div>
+      <a href="news.html" class="btn btn-outline btn-sm">View All</a>
+    </div>
+    <div class="grid grid-3" id="home-news-grid"></div>
+  </div>
+</section>
+
+<!-- MOMENTS -->
+<section class="section section-sm">
+  <div class="container">
+    <div class="section-head between">
+      <div>
+        <span class="section-tag">Memories</span>
+        <h2 class="section-title">Moments</h2>
+      </div>
+      <a href="gallery.html" class="btn btn-outline btn-sm">View Gallery</a>
+    </div>
+    <div class="moments-strip" id="home-moments-strip"></div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="/static/js/api.js"></script>
+<script src="/static/js/common.js"></script>
+<script src="/static/js/album-viewer.js"></script>
+<script>
+async function renderHomepage() {
+  try {
+    const home = await OTCApi.getContent('homepage');
+
+    if (home.heroTitle) document.getElementById('hero-title').textContent = home.heroTitle;
+    if (home.heroSubtitle) document.getElementById('hero-subtitle').innerHTML = home.heroSubtitle;
+    if (home.heroLead) document.getElementById('hero-lead').textContent = home.heroLead;
+    if (home.heroBackground) {
+      document.getElementById('hero-section').style.backgroundImage =
+        `linear-gradient(rgba(5,2,15,0.75),rgba(5,2,15,0.9)), url('${home.heroBackground}')`;
+      document.getElementById('hero-section').style.backgroundSize = 'cover';
+      document.getElementById('hero-section').style.backgroundPosition = 'center';
+    }
+
+    const s = home.stats || {};
+    const items = [
+      { icon: 'fa-calendar-check', num: (s.yearsActive || 0) + '+', label: 'Years Active' },
+      { icon: 'fa-users', num: (s.members || 0) + '+', label: 'Members' },
+      { icon: 'fa-diagram-project', num: (s.projects || 0) + '+', label: 'Projects' },
+      { icon: 'fa-chalkboard-user', num: (s.workshops || 0) + '+', label: 'Workshops' },
+      { icon: 'fa-calendar-days', num: (s.events || 0) + '+', label: 'Events' },
+      { icon: 'fa-trophy', num: (s.achievements || 0) + '+', label: 'Achievements' }
+    ];
+    document.getElementById('stats-row').innerHTML = items.map(it => `
+      <div class="stat-card"><i class="fas ${it.icon}"></i><div class="num">${it.num}</div><div class="label">${it.label}</div></div>`).join('');
+
+    if (home.aboutPreviewTitle) document.getElementById('about-preview-title').textContent = home.aboutPreviewTitle;
+    if (home.aboutPreviewText) document.getElementById('about-preview-text').textContent = home.aboutPreviewText;
+    if (home.aboutPreviewImage) document.getElementById('about-preview-image').src = home.aboutPreviewImage;
+
+    const expertise = home.expertise || [];
+    document.getElementById('expertise-grid').innerHTML = expertise.map(e => `
+      <div class="icon-card"><div class="icon-circle"><i class="fas ${e.icon}"></i></div><h4>${e.label}</h4></div>`).join('');
+
+    await renderHomeNews(home);
+    await renderHomeMoments(home);
+  } catch (e) {
+    console.error('Failed to load homepage content', e);
+  }
+}
+
+async function renderHomeNews(home) {
+  const mount = document.getElementById('home-news-grid');
+  try {
+    let news = await OTCApi.getNews();
+    if (home.featuredNewsIds && home.featuredNewsIds.length) {
+      const idSet = new Set(home.featuredNewsIds);
+      news = news.filter(n => idSet.has(n.id));
+    } else {
+      news = news.slice(0, 3);
+    }
+    mount.innerHTML = news.map(n => `
+      <div class="card news-card fade-in">
+        <img src="${n.cover_image || '/static/images/logo.png'}" alt="${n.title}">
+        <div class="body">
+          <span class="news-tag tag-${n.category}">${n.category}</span>
+          <h4>${n.title}</h4>
+          <p>${n.excerpt}</p>
+          <div class="news-meta"><i class="far fa-calendar"></i> ${n.date}</div>
+        </div>
+      </div>`).join('') || `<p style="color:var(--text-dim);">No news yet.</p>`;
+  } catch (e) {
+    mount.innerHTML = `<p style="color:var(--danger);">Failed to load news.</p>`;
+  }
+}
+
+async function renderHomeMoments(home) {
+  const mount = document.getElementById('home-moments-strip');
+  try {
+    const albums = await OTCApi.getGalleryAlbums();
+    let album = null;
+    if (home.featuredAlbumId) album = albums.find(a => a.id === home.featuredAlbumId);
+    if (!album) album = albums[0];
+    if (!album) { mount.innerHTML = `<p style="color:var(--text-dim);">No moments yet.</p>`; return; }
+
+    const full = await OTCApi.getGalleryAlbum(album.id);
+    const images = (full.images || []).slice(0, 6);
+    mount.innerHTML = images.map((img, idx) => `<img src="${img.url}" alt="${img.caption || ''}" data-idx="${idx}">`).join('');
+    mount.querySelectorAll('img').forEach(im => {
+      im.addEventListener('click', () => OTCAlbumViewer.open(album.name, full.images, parseInt(im.dataset.idx)));
+    });
+  } catch (e) {
+    mount.innerHTML = `<p style="color:var(--danger);">Failed to load moments.</p>`;
+  }
+}
+
+renderHomepage();
+</script>
+</body>
+</html>

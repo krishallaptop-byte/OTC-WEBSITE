@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Us — Orchid Tech Club</title>
+<link rel="icon" href="/static/images/logo.png" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body data-page="about">
+
+<div id="site-header"></div>
+
+<div class="page-banner">
+  <div class="container">
+    <h1>About Us</h1>
+    <div class="breadcrumb"><a href="index.html">Home</a> / About</div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head center">
+      <span class="section-tag">Our Story</span>
+      <h2 class="section-title">Where It All Began</h2>
+    </div>
+
+    <div class="grid grid-4" style="margin-bottom:50px;" id="about-quad-grid"></div>
+
+    <div class="about-split">
+      <div>
+        <h3>Our Journey</h3>
+        <div id="about-story-text"></div>
+      </div>
+      <div>
+        <img id="about-story-image" src="/static/images/first-meeting-2.jpg" alt="Club Group Photo">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-sm">
+  <div class="container">
+    <div class="section-head center">
+      <span class="section-tag">Our Focus</span>
+      <h2 class="section-title">Areas of Expertise</h2>
+    </div>
+    <div class="grid grid-6" id="about-expertise-grid"></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head between">
+      <div>
+        <span class="section-tag">Leadership</span>
+        <h2 class="section-title">Current Board of Directors</h2>
+      </div>
+      <a href="bod-history.html" class="btn btn-outline btn-sm">View All</a>
+    </div>
+    <div class="grid grid-4" id="about-bod-grid"></div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="/static/js/api.js"></script>
+<script src="/static/js/common.js"></script>
+<script>
+function memberAvatar(m) {
+  return m.photo
+    ? `<img src="${m.photo}" alt="${m.name}">`
+    : `<div class="bod-avatar-icon"><i class="fas fa-user"></i></div>`;
+}
+function memberSocials(m) {
+  const links = [];
+  if (m.facebook) links.push(`<a href="${m.facebook}" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i></a>`);
+  if (m.linkedin) links.push(`<a href="${m.linkedin}" target="_blank" rel="noopener"><i class="fab fa-linkedin-in"></i></a>`);
+  if (m.github) links.push(`<a href="${m.github}" target="_blank" rel="noopener"><i class="fab fa-github"></i></a>`);
+  if (!links.length) return '';
+  return `<div class="bod-socials">${links.join('')}</div>`;
+}
+
+async function renderBodCurrent() {
+  const mount = document.getElementById('about-bod-grid');
+  try {
+    const current = await OTCApi.getBodCurrent();
+    if (!current || !current.members || !current.members.length) {
+      mount.innerHTML = `<p style="color:var(--text-dim);">Current board information coming soon.</p>`;
+      return;
+    }
+    mount.innerHTML = current.members.map(m => `
+      <div class="card bod-card">
+        ${memberAvatar(m)}
+        <h4>${m.name}</h4>
+        <span>${m.position}</span>
+        ${memberSocials(m)}
+      </div>`).join('');
+  } catch (e) {
+    mount.innerHTML = `<p style="color:var(--danger);">Failed to load board information.</p>`;
+  }
+}
+
+async function renderAbout() {
+  try {
+    const about = await OTCApi.getContent('about');
+
+    document.getElementById('about-quad-grid').innerHTML = `
+      <div class="card icon-card"><div class="icon-circle"><i class="fas fa-eye"></i></div><h4>Vision</h4><p>${about.vision || ''}</p></div>
+      <div class="card icon-card"><div class="icon-circle"><i class="fas fa-bullseye"></i></div><h4>Mission</h4><p>${about.mission || ''}</p></div>
+      <div class="card icon-card"><div class="icon-circle"><i class="fas fa-comment-dots"></i></div><h4>Motto</h4><p>${about.motto || ''}</p></div>
+      <div class="card icon-card"><div class="icon-circle"><i class="fas fa-gem"></i></div><h4>Core Values</h4><p>${about.coreValues || ''}</p></div>`;
+
+    document.getElementById('about-story-text').innerHTML = (about.story || '')
+      .split('\n\n').map(p => `<p>${p}</p>`).join('');
+    if (about.storyImage) document.getElementById('about-story-image').src = about.storyImage;
+
+    const expertise = about.expertiseCards || [];
+    document.getElementById('about-expertise-grid').innerHTML = expertise.map(e => `
+      <div class="icon-card"><div class="icon-circle"><i class="fas ${e.icon}"></i></div><h4>${e.label}</h4></div>`).join('');
+  } catch (e) {
+    console.error('Failed to load about content', e);
+  }
+}
+
+renderAbout();
+renderBodCurrent();
+</script>
+</body>
+</html>

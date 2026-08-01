@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projects — Orchid Tech Club</title>
+<link rel="icon" href="/static/images/logo.png" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body data-page="projects">
+
+<div id="site-header"></div>
+
+<div class="page-banner">
+  <div class="container">
+    <h1>Projects</h1>
+    <div class="breadcrumb"><a href="index.html">Home</a> / Projects</div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head center">
+      <span class="section-tag">Our Work</span>
+      <h2 class="section-title">Club Projects</h2>
+      <p class="section-desc">Real-world projects built by our members across AI, Web, Robotics, Security and more.</p>
+    </div>
+    <div class="grid grid-3" id="projects-grid">
+      <div class="otc-loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading projects...</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PROJECT DETAIL MODAL ================= -->
+<div class="project-detail-overlay" id="project-detail-overlay">
+  <div class="project-detail-panel">
+    <button class="project-detail-close" id="project-detail-close"><i class="fas fa-times"></i></button>
+    <span class="news-tag tag-event" id="pd-tag"></span>
+    <h3 id="pd-title"></h3>
+    <div style="margin:6px 0 4px;font-size:0.78rem;font-weight:600;" id="pd-status"></div>
+    <p style="color:var(--text-dim);font-size:0.9rem;line-height:1.7;margin-top:14px;" id="pd-desc"></p>
+    <div class="project-detail-gallery" id="pd-gallery"></div>
+  </div>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="/static/js/api.js"></script>
+<script src="/static/js/common.js"></script>
+<script src="/static/js/album-viewer.js"></script>
+<script>
+function statusColor(s) {
+  if (s === 'Completed') return 'style="color:#2ecc71;"';
+  if (s === 'Ongoing') return 'style="color:#ffb84d;"';
+  return 'style="color:#4facfe;"';
+}
+
+async function renderProjects() {
+  const mount = document.getElementById('projects-grid');
+  try {
+    const list = await OTCApi.getProjects();
+    if (!list.length) {
+      mount.innerHTML = `<p style="color:var(--text-dim);">No projects have been added yet.</p>`;
+      return;
+    }
+    mount.innerHTML = list.map(p => `
+      <div class="card project-card-clickable fade-in" data-project-id="${p.id}">
+        <div class="project-thumb"><img src="${p.thumbnail || '/static/images/logo.png'}" alt="${p.title}"></div>
+        <span class="news-tag tag-event">${p.tag || 'General'}</span>
+        <h4 style="color:#fff;margin:10px 0 8px;">${p.title}</h4>
+        <p style="color:var(--text-dim);font-size:0.88rem;line-height:1.6;">${p.description || ''}</p>
+        <div style="margin-top:12px;font-size:0.78rem;font-weight:600;" ${statusColor(p.status)}><i class="fas fa-circle" style="font-size:0.5rem;margin-right:6px;"></i>${p.status}</div>
+      </div>`).join('');
+
+    mount.querySelectorAll('[data-project-id]').forEach(card => {
+      card.addEventListener('click', () => openProjectDetail(parseInt(card.dataset.projectId)));
+    });
+  } catch (e) {
+    mount.innerHTML = `<p style="color:var(--danger);">Failed to load projects. Please refresh the page.</p>`;
+  }
+}
+
+let currentProjectImages = [];
+
+async function openProjectDetail(id) {
+  try {
+    const p = await OTCApi.getProject(id);
+    document.getElementById('pd-tag').textContent = p.tag || 'General';
+    document.getElementById('pd-title').textContent = p.title;
+    document.getElementById('pd-desc').textContent = p.description || '';
+    const statusEl = document.getElementById('pd-status');
+    statusEl.setAttribute('style', statusColor(p.status).replace('style="', '').replace('"', ''));
+    statusEl.innerHTML = `<i class="fas fa-circle" style="font-size:0.5rem;margin-right:6px;"></i>${p.status}`;
+
+    const images = (p.images && p.images.length) ? p.images : (p.thumbnail ? [{ url: p.thumbnail, caption: p.title }] : []);
+    currentProjectImages = images;
+    const galleryMount = document.getElementById('pd-gallery');
+    galleryMount.innerHTML = images.map((img, idx) => `<img src="${img.url}" data-idx="${idx}" alt="${p.title}">`).join('');
+    galleryMount.querySelectorAll('img').forEach(im => {
+      im.addEventListener('click', () => OTCAlbumViewer.open(p.title, currentProjectImages, parseInt(im.dataset.idx)));
+    });
+
+    document.getElementById('project-detail-overlay').classList.add('show');
+  } catch (e) {
+    alert('Failed to load project details.');
+  }
+}
+
+document.getElementById('project-detail-close').addEventListener('click', () => {
+  document.getElementById('project-detail-overlay').classList.remove('show');
+});
+document.getElementById('project-detail-overlay').addEventListener('click', (e) => {
+  if (e.target.id === 'project-detail-overlay') document.getElementById('project-detail-overlay').classList.remove('show');
+});
+
+renderProjects();
+</script>
+</body>
+</html>

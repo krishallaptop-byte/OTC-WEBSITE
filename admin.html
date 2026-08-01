@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — Orchid Tech Club</title>
+<link rel="icon" href="/static/images/logo.png" type="image/png">
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<!-- Auth Guard Screen -->
+<div id="auth-guard" style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;">
+  <img src="/static/images/logo.png" style="width:70px;height:70px;border-radius:50%;box-shadow:0 0 40px rgba(157,78,221,0.5);">
+  <p style="color:var(--text-dim);">Verifying access...</p>
+</div>
+
+<!-- ================= ADMIN DASHBOARD ================= -->
+<div class="admin-dashboard" id="admin-dashboard">
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <div class="brand">
+      <img src="/static/images/logo.png" class="brand-logo" style="cursor:default;">
+      <span class="brand-text">ORCHID<br><small>TECH CLUB</small></span>
+    </div>
+    <nav class="admin-nav">
+      <a href="#" data-view="dashboard" class="active"><i class="fas fa-gauge"></i> Dashboard</a>
+      <a href="#" data-view="news"><i class="fas fa-newspaper"></i> News & Notices</a>
+      <a href="#" data-view="bod"><i class="fas fa-user-tie"></i> BOD & History</a>
+      <a href="#" data-view="gallery"><i class="fas fa-images"></i> Gallery Albums</a>
+      <a href="#" data-view="projects"><i class="fas fa-diagram-project"></i> Projects</a>
+      <a href="#" data-view="resources"><i class="fas fa-book"></i> Resources</a>
+      <a href="#" data-view="membership"><i class="fas fa-id-card"></i> Membership</a>
+      <a href="#" data-view="homepage"><i class="fas fa-house"></i> Homepage Content</a>
+      <a href="#" data-view="about"><i class="fas fa-circle-info"></i> About Page</a>
+      <a href="#" data-view="settings"><i class="fas fa-gear"></i> Website Settings</a>
+      <a href="#" data-view="footernav"><i class="fas fa-bars"></i> Footer & Navigation</a>
+      <a href="#" data-view="profile"><i class="fas fa-user"></i> Profile</a>
+      <a href="#" id="logout-link"><i class="fas fa-right-from-bracket"></i> Logout</a>
+    </nav>
+    <div style="margin-top:24px;padding:14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid var(--border-glow);">
+      <a href="index.html" style="font-size:0.8rem;color:var(--text-muted);"><i class="fas fa-arrow-left"></i> Back to Website</a>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <button class="admin-mobile-toggle" id="admin-mobile-toggle"><i class="fas fa-bars"></i></button>
+        <h2 id="view-title">Dashboard Overview</h2>
+      </div>
+      <div class="admin-search">
+        <i class="fas fa-database" style="color:var(--text-dim);"></i>
+        <span style="font-size:0.75rem;color:var(--text-dim);">Live D1 + R2 — synced to all devices</span>
+      </div>
+    </div>
+
+    <!-- ============ DASHBOARD ============ -->
+    <div class="admin-view" id="view-dashboard">
+      <div class="admin-stats" id="admin-stats-cards"></div>
+      <div class="admin-panel-grid">
+        <div class="admin-box">
+          <h4>Quick Actions</h4>
+          <div class="quick-actions">
+            <button class="btn btn-primary btn-block" data-quick="add-news"><i class="fas fa-plus"></i> Add News Post</button>
+            <button class="btn btn-outline btn-block" data-quick="add-project"><i class="fas fa-plus"></i> Add Project</button>
+            <button class="btn btn-outline btn-block" data-quick="add-album"><i class="fas fa-plus"></i> Add Gallery Album</button>
+          </div>
+        </div>
+        <div class="admin-box">
+          <h4>System Status</h4>
+          <p style="color:var(--text-dim);font-size:0.85rem;line-height:1.7;">
+            <i class="fas fa-circle-check" style="color:#2ecc71;margin-right:6px;"></i> Database: Cloudflare D1 (connected)<br>
+            <i class="fas fa-circle-check" style="color:#2ecc71;margin-right:6px;"></i> Media Storage: Cloudflare R2 (connected)<br>
+            <i class="fas fa-circle-check" style="color:#2ecc71;margin-right:6px;"></i> All content is centralized — visible to every visitor on every device.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ NEWS ============ -->
+    <div class="admin-view" id="view-news" style="display:none;">
+      <div class="admin-box">
+        <div class="admin-section-top">
+          <h4 class="mb-0">Manage News & Notices</h4>
+          <button class="btn btn-primary btn-sm" id="add-news-btn"><i class="fas fa-plus"></i> Add News</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="admin-table">
+            <thead><tr><th>Title</th><th>Category</th><th>Date</th><th>Pinned</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="news-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ BOD & HISTORY ============ -->
+    <div class="admin-view" id="view-bod" style="display:none;">
+      <div class="admin-box">
+        <div class="admin-section-top">
+          <h4 class="mb-0">Board of Directors — Years</h4>
+          <button class="btn btn-primary btn-sm" id="add-bodyear-btn"><i class="fas fa-plus"></i> Add Year</button>
+        </div>
+        <p style="color:var(--text-dim);font-size:0.82rem;">Mark one year as "Current" to display it on the About page. Drag year cards to reorder.</p>
+        <div id="bod-years-admin-list"></div>
+      </div>
+    </div>
+
+    <!-- ============ GALLERY ALBUMS ============ -->
+    <div class="admin-view" id="view-gallery" style="display:none;">
+      <div class="admin-box">
+        <div class="admin-section-top">
+          <h4 class="mb-0">Manage Gallery Albums</h4>
+          <button class="btn btn-primary btn-sm" id="add-album-btn"><i class="fas fa-plus"></i> Add Album</button>
+        </div>
+        <div class="grid grid-3" id="gallery-admin-grid"></div>
+      </div>
+    </div>
+
+    <!-- ============ PROJECTS ============ -->
+    <div class="admin-view" id="view-projects" style="display:none;">
+      <div class="admin-box">
+        <div class="admin-section-top">
+          <h4 class="mb-0">Manage Projects</h4>
+          <button class="btn btn-primary btn-sm" id="add-project-btn"><i class="fas fa-plus"></i> Add Project</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="admin-table">
+            <thead><tr><th>Thumbnail</th><th>Title</th><th>Tag</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="projects-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ RESOURCES ============ -->
+    <div class="admin-view" id="view-resources" style="display:none;">
+      <div class="admin-box">
+        <div class="admin-section-top">
+          <h4 class="mb-0">Manage Resources</h4>
+          <button class="btn btn-primary btn-sm" id="add-resource-btn"><i class="fas fa-plus"></i> Add Resource</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="admin-table">
+            <thead><tr><th>Logo</th><th>Title</th><th>Category</th><th>URL</th><th>Actions</th></tr></thead>
+            <tbody id="resources-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ MEMBERSHIP ============ -->
+    <div class="admin-view" id="view-membership" style="display:none;">
+      <div class="admin-box" style="max-width:640px;">
+        <h4>Membership Registration</h4>
+        <div class="form-group">
+          <label>Registration Status</label>
+          <select class="form-control" id="m-status">
+            <option value="open">Open</option>
+            <option value="closed">Closed</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Google Form URL</label><input class="form-control" id="m-formurl" placeholder="https://forms.google.com/..."></div>
+        <div class="form-group"><label>Registration Deadline</label><input type="date" class="form-control" id="m-deadline"></div>
+        <div class="form-group"><label>Membership Instructions</label><textarea class="form-control" id="m-instructions"></textarea></div>
+
+        <label style="display:block;margin:18px 0 8px;color:#fff;font-size:0.9rem;">Benefits</label>
+        <div id="m-benefits-list"></div>
+        <button class="btn btn-outline btn-sm" id="m-add-benefit" type="button"><i class="fas fa-plus"></i> Add Benefit</button>
+
+        <label style="display:block;margin:18px 0 8px;color:#fff;font-size:0.9rem;">FAQ</label>
+        <div id="m-faq-list"></div>
+        <button class="btn btn-outline btn-sm" id="m-add-faq" type="button"><i class="fas fa-plus"></i> Add FAQ</button>
+
+        <button class="btn btn-primary" id="save-membership-btn" style="margin-top:20px;"><i class="fas fa-save"></i> Save Membership Settings</button>
+      </div>
+    </div>
+
+    <!-- ============ HOMEPAGE CONTENT ============ -->
+    <div class="admin-view" id="view-homepage" style="display:none;">
+      <div class="admin-box" style="max-width:680px;">
+        <h4>Hero Section</h4>
+        <div class="form-group"><label>Hero Title</label><input class="form-control" id="h-title"></div>
+        <div class="form-group"><label>Hero Subtitle</label><input class="form-control" id="h-subtitle"></div>
+        <div class="form-group"><label>Hero Lead Text</label><textarea class="form-control" id="h-lead"></textarea></div>
+        <label style="display:block;margin-bottom:6px;color:#fff;font-size:0.85rem;">Hero Background Image (optional)</label>
+        <div id="h-bg-uploader" style="margin-bottom:18px;"></div>
+
+        <h4>Homepage Stats (Counters)</h4>
+        <div class="grid grid-3">
+          <div class="form-group"><label>Years Active</label><input type="number" class="form-control" id="h-s-years"></div>
+          <div class="form-group"><label>Members</label><input type="number" class="form-control" id="h-s-members"></div>
+          <div class="form-group"><label>Projects</label><input type="number" class="form-control" id="h-s-projects"></div>
+          <div class="form-group"><label>Workshops</label><input type="number" class="form-control" id="h-s-workshops"></div>
+          <div class="form-group"><label>Events</label><input type="number" class="form-control" id="h-s-events"></div>
+          <div class="form-group"><label>Achievements</label><input type="number" class="form-control" id="h-s-achievements"></div>
+        </div>
+
+        <h4>About Preview (Homepage)</h4>
+        <div class="form-group"><label>Title</label><input class="form-control" id="h-about-title"></div>
+        <div class="form-group"><label>Text</label><textarea class="form-control" id="h-about-text"></textarea></div>
+        <label style="display:block;margin-bottom:6px;color:#fff;font-size:0.85rem;">Image</label>
+        <div id="h-about-img-uploader" style="margin-bottom:18px;"></div>
+
+        <h4>Expertise Cards</h4>
+        <div id="h-expertise-list"></div>
+        <button class="btn btn-outline btn-sm" id="h-add-expertise" type="button"><i class="fas fa-plus"></i> Add Expertise Card</button>
+
+        <button class="btn btn-primary" id="save-homepage-btn" style="margin-top:20px;"><i class="fas fa-save"></i> Save Homepage Content</button>
+      </div>
+    </div>
+
+    <!-- ============ ABOUT PAGE ============ -->
+    <div class="admin-view" id="view-about" style="display:none;">
+      <div class="admin-box" style="max-width:680px;">
+        <h4>Our Story</h4>
+        <div class="form-group"><label>Story (use blank line for new paragraph)</label><textarea class="form-control" id="a-story" style="min-height:120px;"></textarea></div>
+        <label style="display:block;margin-bottom:6px;color:#fff;font-size:0.85rem;">Story Image</label>
+        <div id="a-story-img-uploader" style="margin-bottom:18px;"></div>
+
+        <div class="grid grid-2">
+          <div class="form-group"><label>Vision</label><textarea class="form-control" id="a-vision"></textarea></div>
+          <div class="form-group"><label>Mission</label><textarea class="form-control" id="a-mission"></textarea></div>
+          <div class="form-group"><label>Motto</label><textarea class="form-control" id="a-motto"></textarea></div>
+          <div class="form-group"><label>Core Values</label><textarea class="form-control" id="a-corevalues"></textarea></div>
+        </div>
+
+        <h4>Expertise Cards</h4>
+        <div id="a-expertise-list"></div>
+        <button class="btn btn-outline btn-sm" id="a-add-expertise" type="button"><i class="fas fa-plus"></i> Add Expertise Card</button>
+
+        <h4 style="margin-top:20px;">Timeline (Board History Summary)</h4>
+        <div id="a-timeline-list"></div>
+        <button class="btn btn-outline btn-sm" id="a-add-timeline" type="button"><i class="fas fa-plus"></i> Add Timeline Entry</button>
+
+        <button class="btn btn-primary" id="save-about-btn" style="margin-top:20px;"><i class="fas fa-save"></i> Save About Page</button>
+      </div>
+    </div>
+
+    <!-- ============ WEBSITE SETTINGS (Settings / Contact / Social tabs) ============ -->
+    <div class="admin-view" id="view-settings" style="display:none;">
+      <div class="filter-tabs" id="settings-subtabs" style="margin-bottom:20px;">
+        <button class="filter-tab active" data-subtab="general">General</button>
+        <button class="filter-tab" data-subtab="contact">Contact Info</button>
+        <button class="filter-tab" data-subtab="social">Social Media</button>
+      </div>
+
+      <div class="admin-box" style="max-width:640px;" id="settings-tab-general">
+        <h4>General Website Settings</h4>
+        <div class="form-group"><label>Club Name</label><input class="form-control" id="st-clubname"></div>
+        <label style="display:block;margin-bottom:6px;color:#fff;font-size:0.85rem;">Logo</label>
+        <div id="st-logo-uploader" style="margin-bottom:18px;"></div>
+        <label style="display:block;margin-bottom:6px;color:#fff;font-size:0.85rem;">Favicon</label>
+        <div id="st-favicon-uploader" style="margin-bottom:18px;"></div>
+        <div class="grid grid-2">
+          <div class="form-group"><label>Theme Primary Color</label><input type="color" class="form-control" id="st-theme1" style="height:44px;"></div>
+          <div class="form-group"><label>Theme Secondary Color</label><input type="color" class="form-control" id="st-theme2" style="height:44px;"></div>
+        </div>
+        <div class="form-group"><label>Footer Text</label><textarea class="form-control" id="st-footertext"></textarea></div>
+        <div class="form-group"><label>Copyright Text</label><input class="form-control" id="st-copyright"></div>
+        <button class="btn btn-primary" id="save-settings-general-btn"><i class="fas fa-save"></i> Save General Settings</button>
+      </div>
+
+      <div class="admin-box" style="max-width:640px;display:none;" id="settings-tab-contact">
+        <h4>Contact Information</h4>
+        <div class="form-group"><label>Email</label><input class="form-control" id="st-email"></div>
+        <div class="form-group"><label>Phone</label><input class="form-control" id="st-phone"></div>
+        <div class="form-group"><label>Address</label><input class="form-control" id="st-address"></div>
+        <div class="form-group"><label>Map Embed URL</label><input class="form-control" id="st-mapurl"></div>
+        <button class="btn btn-primary" id="save-settings-contact-btn"><i class="fas fa-save"></i> Save Contact Info</button>
+      </div>
+
+      <div class="admin-box" style="max-width:640px;display:none;" id="settings-tab-social">
+        <h4>Social Media Links</h4>
+        <div class="form-group"><label><i class="fab fa-facebook-f"></i> Facebook</label><input class="form-control" id="so-facebook"></div>
+        <div class="form-group"><label><i class="fab fa-instagram"></i> Instagram</label><input class="form-control" id="so-instagram"></div>
+        <div class="form-group"><label><i class="fab fa-linkedin-in"></i> LinkedIn</label><input class="form-control" id="so-linkedin"></div>
+        <div class="form-group"><label><i class="fab fa-youtube"></i> YouTube</label><input class="form-control" id="so-youtube"></div>
+        <div class="form-group"><label><i class="fab fa-github"></i> GitHub</label><input class="form-control" id="so-github"></div>
+        <button class="btn btn-primary" id="save-settings-social-btn"><i class="fas fa-save"></i> Save Social Links</button>
+      </div>
+    </div>
+
+    <!-- ============ FOOTER & NAVIGATION ============ -->
+    <div class="admin-view" id="view-footernav" style="display:none;">
+      <div class="filter-tabs" id="footernav-subtabs" style="margin-bottom:20px;">
+        <button class="filter-tab active" data-subtab="nav">Navigation Menu</button>
+        <button class="filter-tab" data-subtab="footer">Footer Links</button>
+      </div>
+
+      <div class="admin-box" style="max-width:600px;" id="footernav-tab-nav">
+        <h4>Navigation Menu Links</h4>
+        <div id="nav-links-list"></div>
+        <button class="btn btn-outline btn-sm" id="nav-add-link" type="button"><i class="fas fa-plus"></i> Add Nav Link</button>
+        <button class="btn btn-primary" id="save-nav-btn" style="margin-top:16px;display:block;"><i class="fas fa-save"></i> Save Navigation</button>
+      </div>
+
+      <div class="admin-box" style="max-width:600px;display:none;" id="footernav-tab-footer">
+        <h4>Footer — Quick Links</h4>
+        <div id="footer-quick-list"></div>
+        <button class="btn btn-outline btn-sm" id="footer-add-quick" type="button"><i class="fas fa-plus"></i> Add Link</button>
+
+        <h4 style="margin-top:20px;">Footer — Connect Links</h4>
+        <div id="footer-connect-list"></div>
+        <button class="btn btn-outline btn-sm" id="footer-add-connect" type="button"><i class="fas fa-plus"></i> Add Link</button>
+
+        <button class="btn btn-primary" id="save-footer-btn" style="margin-top:16px;display:block;"><i class="fas fa-save"></i> Save Footer</button>
+      </div>
+    </div>
+
+    <!-- ============ PROFILE ============ -->
+    <div class="admin-view" id="view-profile" style="display:none;">
+      <div class="admin-box" style="max-width:460px;">
+        <h4>Admin Profile</h4>
+        <div style="text-align:center;margin-bottom:20px;">
+          <div class="bod-avatar-icon" style="margin:0 auto 14px;"><i class="fas fa-user-shield"></i></div>
+          <h4 style="color:#fff;margin:0;">Site Administrator</h4>
+          <span style="font-size:0.78rem;color:var(--text-dim);">Orchid Tech Club</span>
+        </div>
+        <p style="color:var(--text-dim);font-size:0.85rem;text-align:center;">
+          Session-based authentication via secure backend token.
+        </p>
+        <button class="btn btn-danger btn-block" id="profile-logout-btn"><i class="fas fa-right-from-bracket"></i> Logout</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ============ GENERIC MODAL (Add/Edit) ============ -->
+<div class="admin-modal-overlay" id="admin-modal-overlay">
+  <div class="admin-modal" id="admin-modal-content" style="max-width:640px;"></div>
+</div>
+
+<div class="toast" id="admin-toast"><i class="fas fa-check-circle"></i><span id="toast-text"></span></div>
+
+<script src="/static/js/api.js"></script>
+<script src="/static/js/uploader.js"></script>
+<script src="/static/js/album-viewer.js"></script>
+<script src="/static/js/admin.js"></script>
+</body>
+</html>

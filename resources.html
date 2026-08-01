@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resources — Orchid Tech Club</title>
+<link rel="icon" href="/static/images/logo.png" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body data-page="resources">
+
+<div id="site-header"></div>
+
+<div class="page-banner">
+  <div class="container">
+    <h1>Resources</h1>
+    <div class="breadcrumb"><a href="index.html">Home</a> / Resources</div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head center">
+      <span class="section-tag">Learning Hub</span>
+      <h2 class="section-title">Helpful Resources</h2>
+      <p class="section-desc">Curated guides, tutorials and references to help members level up their skills.</p>
+    </div>
+    <div class="grid grid-3" id="resources-grid">
+      <div class="otc-loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading resources...</div>
+    </div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="/static/js/api.js"></script>
+<script src="/static/js/common.js"></script>
+<script>
+const DEFAULT_ICONS = {
+  'Programming': 'fa-book', 'Web Dev': 'fa-laptop-code', 'AI/ML': 'fa-brain',
+  'Robotics': 'fa-robot', 'Security': 'fa-shield-halved', 'Data Science': 'fa-chart-line'
+};
+
+async function renderResources() {
+  const mount = document.getElementById('resources-grid');
+  try {
+    const list = await OTCApi.getResources();
+    if (!list.length) {
+      mount.innerHTML = `<p style="color:var(--text-dim);">No resources have been added yet.</p>`;
+      return;
+    }
+    mount.innerHTML = list.map(r => {
+      const inner = r.logo
+        ? `<img src="${r.logo}" alt="${r.title}" style="width:44px;height:44px;object-fit:contain;">`
+        : `<i class="fas ${DEFAULT_ICONS[r.category] || 'fa-book'}"></i>`;
+      const card = `
+        <div class="icon-circle">${inner}</div>
+        <h4>${r.title}</h4>
+        <p>${r.description || ''}</p>`;
+      return r.url
+        ? `<a class="card icon-card" href="${r.url}" target="_blank" rel="noopener" style="display:block;text-decoration:none;">${card}</a>`
+        : `<div class="card icon-card">${card}</div>`;
+    }).join('');
+  } catch (e) {
+    mount.innerHTML = `<p style="color:var(--danger);">Failed to load resources. Please refresh the page.</p>`;
+  }
+}
+renderResources();
+</script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BOD History — Orchid Tech Club</title>
+<link rel="icon" href="/static/images/logo.png" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body data-page="bod-history">
+
+<div id="site-header"></div>
+
+<div class="page-banner">
+  <div class="container">
+    <h1>BOD History</h1>
+    <div class="breadcrumb"><a href="index.html">Home</a> / BOD History</div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head center">
+      <span class="section-tag">Our Legacy</span>
+      <h2 class="section-title">Board of Directors — By Year</h2>
+      <p class="section-desc">Meet every executive committee that has led Orchid Tech Club, year by year.</p>
+    </div>
+
+    <div id="bod-years-mount">
+      <div class="otc-loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading board history...</div>
+    </div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="/static/js/api.js"></script>
+<script src="/static/js/common.js"></script>
+<script>
+function memberAvatar(m) {
+  return m.photo
+    ? `<img src="${m.photo}" alt="${m.name}">`
+    : `<div class="bod-avatar-icon"><i class="fas fa-user"></i></div>`;
+}
+
+function memberSocials(m) {
+  const links = [];
+  if (m.facebook) links.push(`<a href="${m.facebook}" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i></a>`);
+  if (m.linkedin) links.push(`<a href="${m.linkedin}" target="_blank" rel="noopener"><i class="fab fa-linkedin-in"></i></a>`);
+  if (m.github) links.push(`<a href="${m.github}" target="_blank" rel="noopener"><i class="fab fa-github"></i></a>`);
+  if (!links.length) return '';
+  return `<div class="bod-socials">${links.join('')}</div>`;
+}
+
+function renderYearBlock(year) {
+  const membersHtml = (year.members || []).map(m => `
+    <div class="bod-member-card">
+      ${memberAvatar(m)}
+      <h4>${m.name}</h4>
+      <span class="position">${m.position}</span>
+      ${m.description ? `<p class="desc">${m.description}</p>` : ''}
+      ${memberSocials(m)}
+    </div>`).join('') || `<p style="color:var(--text-dim);">No members added for this year yet.</p>`;
+
+  return `
+    <div class="bod-year-block fade-in">
+      <div class="bod-year-header">
+        <h3>BOD ${year.title}</h3>
+        ${year.is_current ? '<span class="current-badge"><i class="fas fa-star"></i> Current Executive Committee</span>' : ''}
+      </div>
+      <div class="grid grid-4">${membersHtml}</div>
+    </div>`;
+}
+
+async function renderBodYears() {
+  const mount = document.getElementById('bod-years-mount');
+  try {
+    const years = await OTCApi.getBodYears();
+    if (!years.length) {
+      mount.innerHTML = `<p style="color:var(--text-dim);text-align:center;">No board history has been added yet.</p>`;
+      return;
+    }
+    // Show most recent / current years first
+    const sorted = years.slice().sort((a, b) => {
+      if (a.is_current !== b.is_current) return a.is_current ? -1 : 1;
+      return b.sort_order - a.sort_order;
+    });
+    mount.innerHTML = sorted.map(renderYearBlock).join('');
+  } catch (e) {
+    mount.innerHTML = `<p style="color:var(--danger);text-align:center;">Failed to load board history. Please refresh the page.</p>`;
+  }
+}
+renderBodYears();
+</script>
+</body>
+</html>

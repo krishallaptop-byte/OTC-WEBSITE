@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Membership — Orchid Tech Club</title>
+<link rel="icon" href="/static/images/logo.png" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body data-page="membership">
+
+<div id="site-header"></div>
+
+<div class="page-banner">
+  <div class="container">
+    <h1>Join Club</h1>
+    <div class="breadcrumb"><a href="index.html">Home</a> / Membership</div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="member-status-banner" id="status-banner"></div>
+
+    <div class="membership-wrap">
+      <div>
+        <span class="section-tag">Why Join Us</span>
+        <h2 class="section-title" style="font-size:1.8rem;">Why Join Club?</h2>
+        <ul class="why-join" id="benefits-list"></ul>
+
+        <h3 style="color:#fff;margin-top:36px;">Membership Process</h3>
+        <div class="process-steps">
+          <div class="process-step"><div class="n">1</div><h5>Apply</h5><p>Fill out the online form</p></div>
+          <div class="process-step"><div class="n">2</div><h5>Review</h5><p>Our team reviews applications</p></div>
+          <div class="process-step"><div class="n">3</div><h5>Interview</h5><p>Shortlisted candidates interviewed</p></div>
+          <div class="process-step"><div class="n">4</div><h5>Welcome</h5><p>Officially join the club!</p></div>
+        </div>
+      </div>
+
+      <div class="card" style="text-align:center;padding:40px 30px;">
+        <i class="fas fa-user-plus" style="font-size:2.4rem;color:var(--purple);margin-bottom:16px;"></i>
+        <h3 style="color:#fff;margin-bottom:10px;">Ready to Join?</h3>
+        <p style="color:var(--text-dim);margin-bottom:26px;" id="membership-instructions"></p>
+        <a href="#" target="_blank" id="apply-btn" class="btn btn-primary btn-block">Apply Now</a>
+        <p style="font-size:0.78rem;color:var(--text-dim);margin-top:14px;" id="deadline-text"></p>
+      </div>
+    </div>
+
+    <div class="section-head center" style="margin-top:60px;">
+      <span class="section-tag">Have Questions?</span>
+      <h2 class="section-title">Frequently Asked Questions</h2>
+    </div>
+    <div id="faq-list" style="max-width:760px;margin:0 auto;"></div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="/static/js/api.js"></script>
+<script src="/static/js/common.js"></script>
+<script>
+async function renderMembership() {
+  try {
+    const m = await OTCApi.getContent('membership');
+    const isOpen = m.registrationStatus === 'open';
+
+    document.getElementById('status-banner').innerHTML = `
+      <div>
+        <strong style="color:#fff;">Registration Status:</strong>
+        <span class="status-pill ${isOpen ? 'status-open' : 'status-closed'}">${isOpen ? 'OPEN' : 'CLOSED'}</span>
+      </div>
+      <div style="color:var(--text-dim);font-size:0.85rem;">
+        <i class="far fa-clock"></i> Deadline: ${m.registrationDeadline || 'TBA'}
+      </div>`;
+
+    document.getElementById('membership-instructions').textContent = m.instructions || '';
+    document.getElementById('deadline-text').textContent = m.registrationDeadline ? `Applications close on ${m.registrationDeadline}` : '';
+
+    const applyBtn = document.getElementById('apply-btn');
+    if (isOpen) {
+      applyBtn.href = m.googleFormUrl || '#';
+      applyBtn.classList.remove('btn-ghost');
+      applyBtn.classList.add('btn-primary');
+      applyBtn.textContent = 'Apply Now';
+    } else {
+      applyBtn.removeAttribute('href');
+      applyBtn.classList.remove('btn-primary');
+      applyBtn.classList.add('btn-ghost');
+      applyBtn.textContent = 'Registrations Closed';
+      applyBtn.style.pointerEvents = 'none';
+      applyBtn.style.opacity = '0.6';
+    }
+
+    const benefits = m.benefits || [];
+    document.getElementById('benefits-list').innerHTML = benefits.map(b => `<li><i class="fas fa-check-circle"></i> ${b}</li>`).join('');
+
+    const faq = m.faq || [];
+    document.getElementById('faq-list').innerHTML = faq.map(f => `
+      <div class="card" style="margin-bottom:14px;">
+        <h4 style="color:#fff;margin:0 0 8px;font-size:1rem;"><i class="fas fa-circle-question" style="color:var(--purple);margin-right:8px;"></i>${f.q}</h4>
+        <p style="color:var(--text-dim);font-size:0.88rem;margin:0;">${f.a}</p>
+      </div>`).join('') || '';
+  } catch (e) {
+    document.getElementById('status-banner').innerHTML = `<p style="color:var(--danger);">Failed to load membership information.</p>`;
+  }
+}
+renderMembership();
+</script>
+</body>
+</html>

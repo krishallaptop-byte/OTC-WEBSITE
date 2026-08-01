@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gallery — Orchid Tech Club</title>
+<link rel="icon" href="/static/images/logo.png" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body data-page="gallery">
+
+<div id="site-header"></div>
+
+<div class="page-banner">
+  <div class="container">
+    <h1>Gallery</h1>
+    <div class="breadcrumb"><a href="index.html">Home</a> / Gallery</div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head center">
+      <span class="section-tag">Captured Memories</span>
+      <h2 class="section-title">Event Albums</h2>
+      <p class="section-desc">A glimpse into our meetings, workshops and events — including our very first club meetings.</p>
+    </div>
+    <div class="grid grid-3" id="albums-grid">
+      <div class="otc-loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading albums...</div>
+    </div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="/static/js/api.js"></script>
+<script src="/static/js/common.js"></script>
+<script src="/static/js/album-viewer.js"></script>
+<script>
+async function renderAlbums() {
+  const mount = document.getElementById('albums-grid');
+  try {
+    const albums = await OTCApi.getGalleryAlbums();
+    if (!albums.length) {
+      mount.innerHTML = `<p style="color:var(--text-dim);">No albums have been added yet.</p>`;
+      return;
+    }
+    mount.innerHTML = albums.map(a => `
+      <div class="album-card fade-in" data-album-id="${a.id}">
+        <div class="album-cover">
+          <img src="${a.cover_image || '/static/images/logo.png'}" alt="${a.name}">
+          <span class="album-count-badge"><i class="fas fa-images"></i> ${a.image_count}</span>
+        </div>
+        <div class="album-body">
+          <h4>${a.name}</h4>
+          <span class="album-date"><i class="far fa-calendar"></i> ${a.event_date}</span>
+          ${a.description ? `<p style="color:var(--text-dim);font-size:0.82rem;margin-top:8px;">${a.description}</p>` : ''}
+        </div>
+      </div>`).join('');
+
+    mount.querySelectorAll('[data-album-id]').forEach(card => {
+      card.addEventListener('click', () => openAlbum(parseInt(card.dataset.albumId)));
+    });
+  } catch (e) {
+    mount.innerHTML = `<p style="color:var(--danger);">Failed to load gallery. Please refresh the page.</p>`;
+  }
+}
+
+async function openAlbum(albumId) {
+  try {
+    const album = await OTCApi.getGalleryAlbum(albumId);
+    OTCAlbumViewer.open(album.name, album.images || []);
+  } catch (e) {
+    alert('Failed to open album.');
+  }
+}
+
+renderAlbums();
+</script>
+</body>
+</html>
