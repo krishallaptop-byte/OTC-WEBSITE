@@ -34,6 +34,16 @@
   </div>
 </section>
 
+<section class="section" id="board-timeline-section" style="display:none;">
+  <div class="container">
+    <div class="section-head">
+      <span class="section-tag">Our Legacy</span>
+      <h2 class="section-title">Board Timeline</h2>
+    </div>
+    <div class="timeline" id="board-timeline-mount"></div>
+  </div>
+</section>
+
 <div id="site-footer"></div>
 
 <script src="/static/js/api.js"></script>
@@ -93,6 +103,26 @@ async function renderBodYears() {
   }
 }
 renderBodYears();
+
+async function renderBoardTimeline() {
+  const section = document.getElementById('board-timeline-section');
+  const mount = document.getElementById('board-timeline-mount');
+  try {
+    const about = await OTCApi.getContent('about');
+    const timeline = (about && about.timeline) || [];
+    if (!timeline.length) return; // Keep section hidden if nothing to show.
+    mount.innerHTML = timeline.map(t => `
+      <div class="timeline-item">
+        <span class="year">${t.year || ''}</span>
+        <h4>${t.title || ''}</h4>
+        <p>${t.text || ''}</p>
+      </div>`).join('');
+    section.style.display = '';
+  } catch (e) {
+    // Silently skip — the year-by-year BOD list above still works fine.
+  }
+}
+renderBoardTimeline();
 </script>
 </body>
 </html>

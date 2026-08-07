@@ -1,0 +1,4 @@
+# Internal temp storage for in-flight multipart uploads. Never serve or
+# execute anything here; files are renamed out of this dir immediately
+# after being parsed.
+Require all denied

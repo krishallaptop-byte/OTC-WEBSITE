@@ -24,6 +24,10 @@ eggs/
 .eggs/
 lib/
 lib64/
+# Exception: api/lib/ holds this app's own PHP library code (auth, crypto,
+# helpers, multipart parser) — NOT a Python venv lib dir. Must be tracked.
+!api/lib/
+!api/lib/**
 parts/
 sdist/
 var/
@@ -101,6 +105,11 @@ temp/
 *.bak
 *.backup
 *.old
+# Exception: uploads/.tmp/ is our app's internal upload-scratch directory
+# (see api/lib/multipart.php) and ships with a protective .htaccess that
+# must be committed so it's already in place before the first upload runs.
+!uploads/.tmp/
+!uploads/.tmp/.htaccess
 
 # Database
 *.sqlite
@@ -127,3 +136,4 @@ docker-compose.override.yml
 .grunt
 .lock-wscript
 
+dev-router.php
