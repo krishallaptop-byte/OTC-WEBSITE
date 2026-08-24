@@ -35,6 +35,11 @@ INSERT IGNORE INTO news (id, title, category, `date`, excerpt, cover_image, stat
 INSERT IGNORE INTO bod_years (id, title, is_current, sort_order) VALUES
 (1, '2025–2026', 0, 1),
 (2, '2026–2027', 1, 2);
+-- NOTE: is_current is only applied by the INSERT above on a fresh install.
+-- On an existing install where these rows already exist, INSERT IGNORE is a
+-- no-op, so also force the correct current flag explicitly:
+UPDATE bod_years SET is_current = 1 WHERE id = 2;
+UPDATE bod_years SET is_current = 0 WHERE id = 1;
 
 INSERT IGNORE INTO bod_members (id, year_id, name, position, photo, sort_order) VALUES
 (1, 1, 'Aayushma R.', 'President', '', 1),
@@ -42,10 +47,12 @@ INSERT IGNORE INTO bod_members (id, year_id, name, position, photo, sort_order) 
 (3, 1, 'Suprina T.', 'Treasurer', '', 3),
 (4, 1, 'Saugat Rai', 'Social Media Head', '', 4),
 (5, 2, 'Krishal Poudel', 'President', '/static/images/president-krishal-poudel.jpg', 1),
-(6, 2, 'Aayushma R.', 'Vice President', '', 2),
-(7, 2, 'Sabnam Sherpa', 'Secretary', '', 3),
-(8, 2, 'Suprina T.', 'Treasurer', '', 4),
-(9, 2, 'Saugat Rai', 'Editor', '', 5);
+(6, 2, 'Apekshay Gurung', 'Vice President', '/static/images/bod-2026-27-apekshay-gurung.jpg', 2),
+(7, 2, 'Subarna Poudel', 'Secretary', '/static/images/bod-2026-27-subarna-poudel.jpg', 3),
+(8, 2, 'Himanshu Chaurisiya', 'Treasurer', '/static/images/bod-2026-27-himanshu-chaurisiya.jpg', 4),
+(9, 2, 'Prince Thapa', 'Editor', '/static/images/bod-2026-27-prince-thapa.jpg', 5),
+(11, 2, 'Supriya Gurung', 'Social Media Head', '/static/images/bod-2026-27-supriya-gurung.jpg', 6),
+(12, 2, 'Nischal Subedi', 'Event Manager', '/static/images/bod-2026-27-nischal-subedi.jpg', 7);
 
 -- ---------- GALLERY ALBUMS ----------
 INSERT IGNORE INTO gallery_albums (id, name, event_date, cover_image, description, sort_order) VALUES

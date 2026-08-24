@@ -415,7 +415,7 @@ async function loadBod() {
       <div class="grid grid-3 bod-admin-member-grid" data-year-grid="${y.id}">
         ${(y.members || []).map((m) => `
           <div class="bod-member-card" draggable="true" data-id="${m.id}" style="cursor:grab;">
-            ${m.photo ? `<img src="${m.photo}" alt="${escapeHtml(m.name)}">` : '<div class="bod-avatar-icon"><i class="fas fa-user"></i></div>'}
+            <div class="hex-frame">${m.photo ? `<img src="${m.photo}" alt="${escapeHtml(m.name)}">` : '<div class="bod-avatar-icon"><i class="fas fa-user"></i></div>'}</div>
             <h4>${escapeHtml(m.name)}</h4><span class="position">${escapeHtml(m.position)}</span>
             <div style="display:flex;justify-content:center;gap:6px;margin-top:6px;">
               <button class="icon-btn" data-action="edit-member" data-id="${m.id}" title="Edit"><i class="fas fa-pen"></i></button>

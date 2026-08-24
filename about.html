@@ -60,7 +60,7 @@
       </div>
       <a href="bod-history.html" class="btn btn-outline btn-sm">View All</a>
     </div>
-    <div class="grid grid-4" id="about-bod-grid"></div>
+    <div class="grid grid-3" id="about-bod-grid"></div>
   </div>
 </section>
 
@@ -70,9 +70,10 @@
 <script src="/static/js/common.js"></script>
 <script>
 function memberAvatar(m) {
-  return m.photo
+  const inner = m.photo
     ? `<img src="${m.photo}" alt="${m.name}">`
     : `<div class="bod-avatar-icon"><i class="fas fa-user"></i></div>`;
+  return `<div class="hex-frame">${inner}</div>`;
 }
 function memberSocials(m) {
   const links = [];

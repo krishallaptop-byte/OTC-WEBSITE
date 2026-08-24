@@ -50,9 +50,10 @@
 <script src="/static/js/common.js"></script>
 <script>
 function memberAvatar(m) {
-  return m.photo
+  const inner = m.photo
     ? `<img src="${m.photo}" alt="${m.name}">`
     : `<div class="bod-avatar-icon"><i class="fas fa-user"></i></div>`;
+  return `<div class="hex-frame">${inner}</div>`;
 }
 
 function memberSocials(m) {
@@ -80,7 +81,7 @@ function renderYearBlock(year) {
         <h3>BOD ${year.title}</h3>
         ${year.is_current ? '<span class="current-badge"><i class="fas fa-star"></i> Current Executive Committee</span>' : ''}
       </div>
-      <div class="grid grid-4">${membersHtml}</div>
+      <div class="grid grid-3">${membersHtml}</div>
     </div>`;
 }
 

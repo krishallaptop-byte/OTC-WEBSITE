@@ -455,7 +455,47 @@ button { font-family: inherit; cursor: pointer; }
 }
 
 /* =============== BOD / TEAM =============== */
-.bod-card { text-align: center; padding: 22px 18px; }
+/* Hexagonal photo frame (replaces the old circular avatar). One shared
+   hexagon shape (clip-path) is reused for the outer gradient-border frame
+   and the inner photo/icon so every BOD member photo across the site
+   (About page "Current Board" + BOD History page) shares the same look.
+   Sized noticeably larger than the old 92-100px circles so visitors can
+   clearly see each member's face. */
+.hex-frame {
+  --hex-clip: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%);
+  width: 170px; height: 170px;
+  margin: 0 auto 16px;
+  position: relative;
+  clip-path: var(--hex-clip);
+  background: var(--grad-main);
+  padding: 5px;
+  filter: drop-shadow(0 6px 18px rgba(123, 47, 247, 0.35));
+  transition: transform 0.25s ease, filter 0.25s ease;
+}
+.hex-frame:hover { transform: translateY(-4px) scale(1.03); filter: drop-shadow(0 10px 26px rgba(123, 47, 247, 0.5)); }
+.hex-frame img {
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center top;
+  clip-path: var(--hex-clip);
+  display: block;
+}
+.hex-frame .bod-avatar-icon {
+  width: 100%; height: 100%;
+  clip-path: var(--hex-clip);
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, rgba(123,47,247,0.28), rgba(79,172,254,0.22));
+  font-size: 3rem; color: var(--purple);
+}
+@media (max-width: 600px) {
+  .hex-frame { width: 150px; height: 150px; }
+}
+
+.bod-card { text-align: center; padding: 26px 18px; }
+.bod-card h4 { margin: 0 0 4px; color: #fff; font-size: 1.05rem; }
+.bod-card span { font-size: 0.8rem; color: var(--purple); font-weight: 600; }
+
+/* Legacy circular classes kept only as a fallback for any markup that
+   isn't wrapped in .hex-frame (should not normally be reached). */
 .bod-card img, .bod-avatar {
   width: 100px; height: 100px; border-radius: 50%;
   object-fit: cover; margin: 0 auto 14px;
@@ -471,8 +511,6 @@ button { font-family: inherit; cursor: pointer; }
   border: 1px solid var(--border-glow);
   font-size: 2.4rem; color: var(--purple);
 }
-.bod-card h4 { margin: 0 0 4px; color: #fff; font-size: 1rem; }
-.bod-card span { font-size: 0.78rem; color: var(--purple); font-weight: 600; }
 
 /* =============== FOOTER =============== */
 .footer { background: var(--bg-panel); border-top: 1px solid rgba(157,78,221,0.15); padding: 60px 0 24px; margin-top: 40px;}
@@ -804,20 +842,27 @@ textarea.form-control { resize: vertical; min-height: 110px; }
   background: var(--grad-btn); color: #fff; font-size: 0.7rem; font-weight: 700;
   padding: 4px 14px; border-radius: 20px; letter-spacing: 0.5px; text-transform: uppercase;
 }
-.bod-member-card { text-align: center; padding: 24px 16px; position: relative; }
-.bod-member-card .bod-photo-wrap { margin-bottom: 14px; }
+.bod-member-card { text-align: center; padding: 28px 18px; position: relative; }
+.bod-member-card .bod-photo-wrap { margin-bottom: 16px; }
+/* Photo itself uses the shared .hex-frame component (see above) for the
+   hexagonal shape + larger size; these rules only cover the non-.hex-frame
+   fallback in case older cached markup renders without the wrapper. */
 .bod-member-card img, .bod-member-card .bod-avatar-icon {
-  width: 92px; height: 92px; border-radius: 50%; object-fit: cover; margin: 0 auto;
-  border: 3px solid transparent; background: var(--grad-main); padding: 3px;
+  width: 170px; height: 170px; object-fit: cover; margin: 0 auto;
+  background: var(--grad-main); padding: 5px;
+  clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%);
 }
 .bod-member-card .bod-avatar-icon {
-  display: flex; align-items: center; justify-content: center; font-size: 2.1rem; color: var(--purple);
+  display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--purple);
   background: linear-gradient(135deg, rgba(123,47,247,0.25), rgba(79,172,254,0.2));
-  border: 1px solid var(--border-glow); padding: 0;
+  padding: 0;
 }
-.bod-member-card h4 { margin: 0 0 4px; color: #fff; font-size: 1rem; }
-.bod-member-card .position { font-size: 0.78rem; color: var(--purple); font-weight: 600; display: block; margin-bottom: 8px; }
-.bod-member-card .desc { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 10px; }
+.bod-member-card h4 { margin: 0 0 4px; color: #fff; font-size: 1.1rem; }
+.bod-member-card .position { font-size: 0.82rem; color: var(--purple); font-weight: 600; display: block; margin-bottom: 8px; }
+.bod-member-card .desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 10px; }
+@media (max-width: 600px) {
+  .bod-member-card img, .bod-member-card .bod-avatar-icon { width: 150px; height: 150px; }
+}
 .bod-socials { display: flex; justify-content: center; gap: 8px; }
 .bod-socials a {
   width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
