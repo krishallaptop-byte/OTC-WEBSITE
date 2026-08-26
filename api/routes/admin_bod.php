@@ -76,14 +76,16 @@ function route_admin_create_bod_member(PDO $pdo): void {
     $nextOrder = next_sort_order($pdo, 'bod_members', 'year_id', $b['year_id']);
 
     $stmt = $pdo->prepare(
-        'INSERT INTO bod_members (year_id, name, position, photo, facebook, linkedin, github, description, sort_order)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        'INSERT INTO bod_members (year_id, name, position, photo, photo_x, photo_y, facebook, linkedin, github, description, sort_order)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
     );
     $stmt->execute([
         $b['year_id'],
         $b['name'],
         $b['position'],
         $b['photo'] ?? '',
+        isset($b['photo_x']) ? (float) $b['photo_x'] : 50.00,
+        isset($b['photo_y']) ? (float) $b['photo_y'] : 35.00,
         $b['facebook'] ?? '',
         $b['linkedin'] ?? '',
         $b['github'] ?? '',
@@ -100,11 +102,25 @@ function route_admin_update_bod_member(PDO $pdo, string $id): void {
         json_response(['ok' => false, 'error' => 'name and position are required.'], 400);
     }
 
+    // Preserve the existing photo_x/photo_y focal point when the request
+    // doesn't include them (e.g. saving from a form that only touched
+    // name/position), so re-saving a member never resets a previously
+    // set/adjusted crop position back to the 50/35 default.
+    if (!isset($b['photo_x']) || !isset($b['photo_y'])) {
+        $cur = $pdo->prepare('SELECT photo_x, photo_y FROM bod_members WHERE id = ?');
+        $cur->execute([$id]);
+        $curRow = $cur->fetch();
+    }
+    $photoX = isset($b['photo_x']) ? (float) $b['photo_x'] : (float) ($curRow['photo_x'] ?? 50.00);
+    $photoY = isset($b['photo_y']) ? (float) $b['photo_y'] : (float) ($curRow['photo_y'] ?? 35.00);
+
     $stmt = $pdo->prepare(
-        'UPDATE bod_members SET name=?, position=?, photo=?, facebook=?, linkedin=?, github=?, description=? WHERE id=?'
+        'UPDATE bod_members SET name=?, position=?, photo=?, photo_x=?, photo_y=?, facebook=?, linkedin=?, github=?, description=? WHERE id=?'
     );
     $stmt->execute([
-        $b['name'], $b['position'], $b['photo'] ?? '', $b['facebook'] ?? '',
+        $b['name'], $b['position'], $b['photo'] ?? '',
+        $photoX, $photoY,
+        $b['facebook'] ?? '',
         $b['linkedin'] ?? '', $b['github'] ?? '', $b['description'] ?? '', $id,
     ]);
 

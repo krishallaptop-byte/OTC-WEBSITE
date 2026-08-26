@@ -70,6 +70,14 @@ CREATE TABLE IF NOT EXISTS bod_members (
   name VARCHAR(150) NOT NULL,
   position VARCHAR(150) NOT NULL,
   photo VARCHAR(500) DEFAULT '',
+  -- Focal point of the photo, as a percentage (0-100) of width/height,
+  -- used as CSS object-position so the hexagon photo frame always centers
+  -- on the person's face instead of cropping it out. Defaults to 50/35
+  -- (slightly above center, a reasonable guess before any face-detection
+  -- or manual adjustment has run). Editable in the admin panel via a
+  -- drag-to-reposition control (like Facebook/Instagram profile photos).
+  photo_x DECIMAL(5,2) NOT NULL DEFAULT 50.00,
+  photo_y DECIMAL(5,2) NOT NULL DEFAULT 35.00,
   facebook VARCHAR(500) DEFAULT '',
   linkedin VARCHAR(500) DEFAULT '',
   github VARCHAR(500) DEFAULT '',

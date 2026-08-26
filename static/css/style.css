@@ -460,34 +460,51 @@ button { font-family: inherit; cursor: pointer; }
    and the inner photo/icon so every BOD member photo across the site
    (About page "Current Board" + BOD History page) shares the same look.
    Sized noticeably larger than the old 92-100px circles so visitors can
-   clearly see each member's face. */
+   clearly see each member's face.
+
+   IMPORTANT: the outer .hex-frame wrapper and the inner <img>/.bod-avatar-icon
+   are both sized with the SAME box-sizing (border-box) and the wrapper's
+   padding creates the thin gradient "border" ring — the inner element always
+   fills exactly (100% - padding) of the wrapper, so the visible frame and the
+   visible photo are always pixel-for-pixel the same hexagon, never mismatched.
+   All rules below use ".hex-frame img"/".hex-frame .bod-avatar-icon" (scoped
+   to the wrapper) and are declared LAST in this stylesheet on purpose so no
+   earlier legacy rule can win a specificity tie and desync the sizing. */
 .hex-frame {
   --hex-clip: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%);
-  width: 170px; height: 170px;
+  width: 180px; height: 180px;
   margin: 0 auto 16px;
   position: relative;
   clip-path: var(--hex-clip);
   background: var(--grad-main);
   padding: 5px;
+  box-sizing: border-box;
   filter: drop-shadow(0 6px 18px rgba(123, 47, 247, 0.35));
   transition: transform 0.25s ease, filter 0.25s ease;
 }
 .hex-frame:hover { transform: translateY(-4px) scale(1.03); filter: drop-shadow(0 10px 26px rgba(123, 47, 247, 0.5)); }
-.hex-frame img {
-  width: 100%; height: 100%;
-  object-fit: cover; object-position: center top;
+.hex-frame > img,
+.hex-frame > .bod-avatar-icon {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
   clip-path: var(--hex-clip);
   display: block;
 }
-.hex-frame .bod-avatar-icon {
-  width: 100%; height: 100%;
-  clip-path: var(--hex-clip);
+.hex-frame > img {
+  object-fit: cover;
+  object-position: var(--face-x, 50%) var(--face-y, 35%);
+}
+.hex-frame > .bod-avatar-icon {
   display: flex; align-items: center; justify-content: center;
   background: linear-gradient(135deg, rgba(123,47,247,0.28), rgba(79,172,254,0.22));
   font-size: 3rem; color: var(--purple);
 }
 @media (max-width: 600px) {
-  .hex-frame { width: 150px; height: 150px; }
+  .hex-frame { width: 160px; height: 160px; }
 }
 
 .bod-card { text-align: center; padding: 26px 18px; }
@@ -495,15 +512,18 @@ button { font-family: inherit; cursor: pointer; }
 .bod-card span { font-size: 0.8rem; color: var(--purple); font-weight: 600; }
 
 /* Legacy circular classes kept only as a fallback for any markup that
-   isn't wrapped in .hex-frame (should not normally be reached). */
-.bod-card img, .bod-avatar {
+   isn't wrapped in .hex-frame (should not normally be reached). Scoped
+   with :not(.hex-frame *) so they can NEVER match an element that lives
+   inside a .hex-frame wrapper, eliminating the old specificity collision
+   that made the circular 100px sizing bleed into the hexagon photos. */
+.bod-card img:not(.hex-frame *), .bod-avatar:not(.hex-frame *) {
   width: 100px; height: 100px; border-radius: 50%;
   object-fit: cover; margin: 0 auto 14px;
   border: 3px solid transparent;
   background: var(--grad-main);
   padding: 3px;
 }
-.bod-avatar-icon {
+.bod-avatar-icon:not(.hex-frame *) {
   width: 100px; height: 100px; border-radius: 50%;
   margin: 0 auto 14px;
   display: flex; align-items: center; justify-content: center;
@@ -828,6 +848,65 @@ textarea.form-control { resize: vertical; min-height: 110px; }
 }
 
 /* =========================================================
+   PHOTO REPOSITION CONTROL (admin, BOD member photo)
+   Facebook/Instagram-style "drag inside the frame to reposition"
+   editor for setting a photo's focal point (object-position),
+   so the hexagon crop always shows the member's face even when
+   automatic face-detection is unavailable or picks the wrong spot.
+   ========================================================= */
+.otc-reposition-wrap { margin-top: 14px; }
+.otc-reposition-label {
+  display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 0.8rem;
+}
+.otc-reposition-label i { color: var(--purple); margin-right: 5px; }
+.otc-reposition-stage {
+  position: relative;
+  width: 200px; height: 200px;
+  margin: 0 auto;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: move;
+  border: 1px solid var(--border-glow-strong);
+  background: #000;
+  touch-action: none;
+  user-select: none;
+}
+.otc-reposition-stage img {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: var(--rp-x, 50%) var(--rp-y, 35%);
+  pointer-events: none;
+  display: block;
+}
+/* Hexagon preview overlay: dims everything outside the hex shape so the
+   admin sees exactly what will be visible on the live site. */
+.otc-reposition-stage::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: rgba(3,1,8,0.55);
+  clip-path: polygon(
+    0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%,
+    25% 3%, 25% 97%, 75% 97%, 75% 3%, 25% 3%
+  );
+  pointer-events: none;
+}
+.otc-reposition-crosshair {
+  position: absolute; width: 18px; height: 18px; margin: -9px 0 0 -9px;
+  border: 2px solid #fff; border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.6);
+  pointer-events: none;
+  z-index: 2;
+}
+.otc-reposition-hint {
+  text-align: center; font-size: 0.72rem; color: var(--text-dim); margin-top: 8px;
+}
+.otc-reposition-actions {
+  display: flex; justify-content: center; gap: 8px; margin-top: 10px;
+}
+
+/* =========================================================
    BOD HISTORY — YEARLY GROUPS
    ========================================================= */
 .bod-year-block { margin-bottom: 56px; }
@@ -845,14 +924,15 @@ textarea.form-control { resize: vertical; min-height: 110px; }
 .bod-member-card { text-align: center; padding: 28px 18px; position: relative; }
 .bod-member-card .bod-photo-wrap { margin-bottom: 16px; }
 /* Photo itself uses the shared .hex-frame component (see above) for the
-   hexagonal shape + larger size; these rules only cover the non-.hex-frame
-   fallback in case older cached markup renders without the wrapper. */
-.bod-member-card img, .bod-member-card .bod-avatar-icon {
-  width: 170px; height: 170px; object-fit: cover; margin: 0 auto;
+   hexagonal shape + sizing. Scoped with :not(.hex-frame *) so this legacy
+   fallback (for markup rendered without the wrapper) can never collide
+   with / override the .hex-frame sizing on the same element. */
+.bod-member-card img:not(.hex-frame *), .bod-member-card .bod-avatar-icon:not(.hex-frame *) {
+  width: 180px; height: 180px; object-fit: cover; margin: 0 auto;
   background: var(--grad-main); padding: 5px;
   clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%);
 }
-.bod-member-card .bod-avatar-icon {
+.bod-member-card .bod-avatar-icon:not(.hex-frame *) {
   display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--purple);
   background: linear-gradient(135deg, rgba(123,47,247,0.25), rgba(79,172,254,0.2));
   padding: 0;
@@ -861,7 +941,7 @@ textarea.form-control { resize: vertical; min-height: 110px; }
 .bod-member-card .position { font-size: 0.82rem; color: var(--purple); font-weight: 600; display: block; margin-bottom: 8px; }
 .bod-member-card .desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 10px; }
 @media (max-width: 600px) {
-  .bod-member-card img, .bod-member-card .bod-avatar-icon { width: 150px; height: 150px; }
+  .bod-member-card img:not(.hex-frame *), .bod-member-card .bod-avatar-icon:not(.hex-frame *) { width: 160px; height: 160px; }
 }
 .bod-socials { display: flex; justify-content: center; gap: 8px; }
 .bod-socials a {

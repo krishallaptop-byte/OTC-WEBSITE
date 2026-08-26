@@ -415,7 +415,7 @@ async function loadBod() {
       <div class="grid grid-3 bod-admin-member-grid" data-year-grid="${y.id}">
         ${(y.members || []).map((m) => `
           <div class="bod-member-card" draggable="true" data-id="${m.id}" style="cursor:grab;">
-            <div class="hex-frame">${m.photo ? `<img src="${m.photo}" alt="${escapeHtml(m.name)}">` : '<div class="bod-avatar-icon"><i class="fas fa-user"></i></div>'}</div>
+            <div class="hex-frame" style="--face-x:${m.photo_x != null ? m.photo_x : 50}%;--face-y:${m.photo_y != null ? m.photo_y : 35}%;">${m.photo ? `<img src="${m.photo}" alt="${escapeHtml(m.name)}">` : '<div class="bod-avatar-icon"><i class="fas fa-user"></i></div>'}</div>
             <h4>${escapeHtml(m.name)}</h4><span class="position">${escapeHtml(m.position)}</span>
             <div style="display:flex;justify-content:center;gap:6px;margin-top:6px;">
               <button class="icon-btn" data-action="edit-member" data-id="${m.id}" title="Edit"><i class="fas fa-pen"></i></button>
@@ -495,6 +495,7 @@ function openMemberModal(member, year) {
     <h3>${isEdit ? 'Edit' : 'Add'} BOD Member <span style="color:var(--text-dim);font-size:0.8rem;">(${escapeHtml(year.title)})</span></h3>
     <label style="display:block;margin-bottom:6px;color:#fff;font-size:0.85rem;">Photo</label>
     <div id="modal-member-photo-uploader" style="margin-bottom:14px;"></div>
+    <div id="modal-member-photo-reposition"></div>
     <div class="grid grid-2">
       <div class="form-group"><label>Name</label><input class="form-control" id="modal-member-name" value="${escapeHtml(member?.name || '')}"></div>
       <div class="form-group"><label>Position</label><input class="form-control" id="modal-member-position" value="${escapeHtml(member?.position || '')}"></div>
@@ -511,9 +512,25 @@ function openMemberModal(member, year) {
     </div>`);
 
   let photoUrl = member?.photo || '';
+  let photoX = member?.photo_x != null ? Number(member.photo_x) : 50;
+  let photoY = member?.photo_y != null ? Number(member.photo_y) : 35;
+
+  const repositioner = OTCPhotoRepositioner({
+    mount: document.getElementById('modal-member-photo-reposition'),
+    imageUrl: photoUrl, x: photoX, y: photoY,
+    onChange: (pos) => { photoX = pos.x; photoY = pos.y; }
+  });
+
   trackUploader(OTCUploader({
     mount: document.getElementById('modal-member-photo-uploader'), folder: `bod/${slugifyClient(year.title)}`,
-    single: true, initial: photoUrl, onChange: (url) => { photoUrl = url; }
+    single: true, initial: photoUrl,
+    onChange: (url) => {
+      photoUrl = url;
+      // A newly uploaded/replaced photo gets a fresh centered default —
+      // the admin can then drag to fine-tune it in the box below.
+      photoX = 50; photoY = 35;
+      repositioner.setImage(url, photoX, photoY);
+    }
   }));
 
   document.getElementById('modal-cancel-btn').onclick = closeModal;
@@ -523,6 +540,7 @@ function openMemberModal(member, year) {
     if (!name || !position) { showToast('Name and position are required.', true); return; }
     const data = {
       name, position, photo: photoUrl,
+      photo_x: photoX, photo_y: photoY,
       facebook: document.getElementById('modal-member-fb').value,
       linkedin: document.getElementById('modal-member-li').value,
       github: document.getElementById('modal-member-gh').value,

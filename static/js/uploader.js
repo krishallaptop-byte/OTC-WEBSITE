@@ -196,3 +196,112 @@ function OTCUploader(opts) {
     destroy: () => { mount.innerHTML = ''; }
   };
 }
+
+/* =========================================================
+   PHOTO REPOSITION WIDGET (Facebook/Instagram-style)
+   Lets the admin drag inside a preview of the photo to choose
+   which part is centered when it's cropped into the hexagon
+   frame. Used for BOD member photos so a face is never cropped
+   out — either the automatic face-detection guess, or a manual
+   override, both stored as photo_x/photo_y percentages (0-100).
+   ========================================================= */
+
+/**
+ * @param {Object} opts
+ * @param {HTMLElement} opts.mount   - container element to render into
+ * @param {string} opts.imageUrl     - current photo URL (repositioner is hidden if empty)
+ * @param {number} [opts.x=50]       - initial focal point X, percent (0-100)
+ * @param {number} [opts.y=35]       - initial focal point Y, percent (0-100)
+ * @param {Function} opts.onChange   - called with {x, y} whenever the position changes
+ */
+function OTCPhotoRepositioner(opts) {
+  const mount = opts.mount;
+  let imageUrl = opts.imageUrl || '';
+  let x = typeof opts.x === 'number' ? opts.x : 50;
+  let y = typeof opts.y === 'number' ? opts.y : 35;
+  const onChange = opts.onChange || (() => {});
+
+  function render() {
+    if (!imageUrl) { mount.innerHTML = ''; return; }
+    mount.innerHTML = `
+      <div class="otc-reposition-wrap">
+        <label class="otc-reposition-label"><i class="fas fa-crop-simple"></i>Reposition photo (drag to center the face)</label>
+        <div class="otc-reposition-stage" tabindex="0">
+          <img src="${imageUrl}" alt="Reposition preview" draggable="false">
+          <div class="otc-reposition-crosshair"></div>
+        </div>
+        <p class="otc-reposition-hint">Drag inside the box, or click/tap a spot, to set what shows in the hexagon frame.</p>
+        <div class="otc-reposition-actions">
+          <button type="button" class="btn btn-outline btn-sm" data-action="rp-reset"><i class="fas fa-rotate-left"></i> Reset to Center</button>
+        </div>
+      </div>`;
+
+    const stage = mount.querySelector('.otc-reposition-stage');
+    const img = mount.querySelector('img');
+    const crosshair = mount.querySelector('.otc-reposition-crosshair');
+
+    function applyVisual() {
+      stage.style.setProperty('--rp-x', x + '%');
+      stage.style.setProperty('--rp-y', y + '%');
+      img.style.objectPosition = x + '% ' + y + '%';
+      crosshair.style.left = x + '%';
+      crosshair.style.top = y + '%';
+    }
+    applyVisual();
+
+    function setFromEvent(clientX, clientY) {
+      const rect = stage.getBoundingClientRect();
+      let px = ((clientX - rect.left) / rect.width) * 100;
+      let py = ((clientY - rect.top) / rect.height) * 100;
+      px = Math.max(0, Math.min(100, px));
+      py = Math.max(0, Math.min(100, py));
+      x = Math.round(px * 10) / 10;
+      y = Math.round(py * 10) / 10;
+      applyVisual();
+      onChange({ x, y });
+    }
+
+    let dragging = false;
+    stage.addEventListener('pointerdown', (e) => {
+      dragging = true;
+      stage.setPointerCapture(e.pointerId);
+      setFromEvent(e.clientX, e.clientY);
+    });
+    stage.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      setFromEvent(e.clientX, e.clientY);
+    });
+    stage.addEventListener('pointerup', (e) => {
+      dragging = false;
+      try { stage.releasePointerCapture(e.pointerId); } catch (err) {}
+    });
+    stage.addEventListener('keydown', (e) => {
+      const step = 2;
+      if (e.key === 'ArrowLeft') { x = Math.max(0, x - step); applyVisual(); onChange({ x, y }); }
+      else if (e.key === 'ArrowRight') { x = Math.min(100, x + step); applyVisual(); onChange({ x, y }); }
+      else if (e.key === 'ArrowUp') { y = Math.max(0, y - step); applyVisual(); onChange({ x, y }); }
+      else if (e.key === 'ArrowDown') { y = Math.min(100, y + step); applyVisual(); onChange({ x, y }); }
+      else return;
+      e.preventDefault();
+    });
+
+    mount.querySelector('[data-action="rp-reset"]').onclick = () => {
+      x = 50; y = 35;
+      applyVisual();
+      onChange({ x, y });
+    };
+  }
+
+  render();
+
+  return {
+    getPosition: () => ({ x, y }),
+    setImage: (url, newX, newY) => {
+      imageUrl = url || '';
+      if (typeof newX === 'number') x = newX;
+      if (typeof newY === 'number') y = newY;
+      render();
+    },
+    destroy: () => { mount.innerHTML = ''; }
+  };
+}

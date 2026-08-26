@@ -6,6 +6,15 @@
 
 SET NAMES utf8mb4;
 
+-- ---------- SCHEMA UPGRADE (safe to re-run on existing installs) ----------
+-- Adds the photo focal-point columns used by the hexagonal BOD photo frames
+-- (object-position offsets so a member's face is always centered instead of
+-- being cropped out). Fresh installs already get these from schema.sql;
+-- this ALTER is only needed when re-importing seed.sql into an existing
+-- database that was set up before this feature was added.
+ALTER TABLE bod_members ADD COLUMN IF NOT EXISTS photo_x DECIMAL(5,2) NOT NULL DEFAULT 50.00 AFTER photo;
+ALTER TABLE bod_members ADD COLUMN IF NOT EXISTS photo_y DECIMAL(5,2) NOT NULL DEFAULT 35.00 AFTER photo_x;
+
 -- Admin user (username: ORCHIDtechCluB@OTC / password: Otc@TechWEBadmin@143)
 -- Password is SHA-256("orchid_tech_club_salt_v1" + password) — same hash as before, verified by PHP hash() function.
 INSERT IGNORE INTO admin_users (id, username, password_hash, role) VALUES
@@ -41,18 +50,33 @@ INSERT IGNORE INTO bod_years (id, title, is_current, sort_order) VALUES
 UPDATE bod_years SET is_current = 1 WHERE id = 2;
 UPDATE bod_years SET is_current = 0 WHERE id = 1;
 
-INSERT IGNORE INTO bod_members (id, year_id, name, position, photo, sort_order) VALUES
-(1, 1, 'Aayushma R.', 'President', '', 1),
-(2, 1, 'Sabnam Sherpa', 'Secretary', '', 2),
-(3, 1, 'Suprina T.', 'Treasurer', '', 3),
-(4, 1, 'Saugat Rai', 'Social Media Head', '', 4),
-(5, 2, 'Krishal Poudel', 'President', '/static/images/president-krishal-poudel.jpg', 1),
-(6, 2, 'Apekshay Gurung', 'Vice President', '/static/images/bod-2026-27-apekshay-gurung.jpg', 2),
-(7, 2, 'Subarna Poudel', 'Secretary', '/static/images/bod-2026-27-subarna-poudel.jpg', 3),
-(8, 2, 'Himanshu Chaurisiya', 'Treasurer', '/static/images/bod-2026-27-himanshu-chaurisiya.jpg', 4),
-(9, 2, 'Prince Thapa', 'Editor', '/static/images/bod-2026-27-prince-thapa.jpg', 5),
-(11, 2, 'Supriya Gurung', 'Social Media Head', '/static/images/bod-2026-27-supriya-gurung.jpg', 6),
-(12, 2, 'Nischal Subedi', 'Event Manager', '/static/images/bod-2026-27-nischal-subedi.jpg', 7);
+-- photo_x/photo_y = face-detection focal point (% of image width/height) for
+-- each member's photo, so the hexagon frame's object-position always centers
+-- on their face automatically. Computed once via an OpenCV DNN face detector
+-- + skin-tone verification (to reject false positives like statues/objects
+-- in the background) when each photo was added; editable afterwards from the
+-- admin panel's drag-to-reposition control.
+INSERT IGNORE INTO bod_members (id, year_id, name, position, photo, photo_x, photo_y, sort_order) VALUES
+(1, 1, 'Aayushma R.', 'President', '', 50.00, 35.00, 1),
+(2, 1, 'Sabnam Sherpa', 'Secretary', '', 50.00, 35.00, 2),
+(3, 1, 'Suprina T.', 'Treasurer', '', 50.00, 35.00, 3),
+(4, 1, 'Saugat Rai', 'Social Media Head', '', 50.00, 35.00, 4),
+(5, 2, 'Krishal Poudel', 'President', '/static/images/president-krishal-poudel.jpg', 50.30, 51.10, 1),
+(6, 2, 'Apekshay Gurung', 'Vice President', '/static/images/bod-2026-27-apekshay-gurung.jpg', 24.70, 33.40, 2),
+(7, 2, 'Subarna Poudel', 'Secretary', '/static/images/bod-2026-27-subarna-poudel.jpg', 50.40, 46.80, 3),
+(8, 2, 'Himanshu Chaurisiya', 'Treasurer', '/static/images/bod-2026-27-himanshu-chaurisiya.jpg', 46.40, 42.80, 4),
+(9, 2, 'Prince Thapa', 'Editor', '/static/images/bod-2026-27-prince-thapa.jpg', 48.20, 43.10, 5),
+(11, 2, 'Supriya Gurung', 'Social Media Head', '/static/images/bod-2026-27-supriya-gurung.jpg', 63.40, 51.10, 6),
+(12, 2, 'Nischal Subedi', 'Event Manager', '/static/images/bod-2026-27-nischal-subedi.jpg', 65.70, 50.40, 7);
+-- On an existing install, INSERT IGNORE is a no-op for ids that already
+-- exist, so also force the photo_x/photo_y (and photo path) explicitly:
+UPDATE bod_members SET photo='/static/images/president-krishal-poudel.jpg', photo_x=50.30, photo_y=51.10 WHERE id=5;
+UPDATE bod_members SET name='Apekshay Gurung', position='Vice President', photo='/static/images/bod-2026-27-apekshay-gurung.jpg', photo_x=24.70, photo_y=33.40 WHERE id=6;
+UPDATE bod_members SET name='Subarna Poudel', position='Secretary', photo='/static/images/bod-2026-27-subarna-poudel.jpg', photo_x=50.40, photo_y=46.80 WHERE id=7;
+UPDATE bod_members SET name='Himanshu Chaurisiya', position='Treasurer', photo='/static/images/bod-2026-27-himanshu-chaurisiya.jpg', photo_x=46.40, photo_y=42.80 WHERE id=8;
+UPDATE bod_members SET name='Prince Thapa', position='Editor', photo='/static/images/bod-2026-27-prince-thapa.jpg', photo_x=48.20, photo_y=43.10 WHERE id=9;
+UPDATE bod_members SET name='Supriya Gurung', position='Social Media Head', photo='/static/images/bod-2026-27-supriya-gurung.jpg', photo_x=63.40, photo_y=51.10 WHERE id=11;
+UPDATE bod_members SET name='Nischal Subedi', position='Event Manager', photo='/static/images/bod-2026-27-nischal-subedi.jpg', photo_x=65.70, photo_y=50.40 WHERE id=12;
 
 -- ---------- GALLERY ALBUMS ----------
 INSERT IGNORE INTO gallery_albums (id, name, event_date, cover_image, description, sort_order) VALUES
