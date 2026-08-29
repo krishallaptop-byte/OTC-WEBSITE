@@ -59,6 +59,9 @@
         <div class="map-frame">
           <iframe id="contact-map" src="" loading="lazy"></iframe>
         </div>
+        <a id="contact-map-link" href="#" target="_blank" rel="noopener" class="btn btn-outline btn-block" style="margin-top:12px;">
+          <i class="fas fa-location-arrow"></i> View on Google Maps
+        </a>
       </div>
     </div>
   </div>
@@ -72,11 +75,12 @@
 async function renderContact() {
   try {
     const settings = await OTCApi.getContent('settings');
-    document.getElementById('contact-address').textContent = settings.address || 'Dharan-11, Chitwan, Nepal';
+    document.getElementById('contact-address').textContent = settings.address || 'Bharatpur-10, Chitwan, Nepal';
     document.getElementById('contact-email').textContent = settings.email || 'orchidtechclub@gmail.com';
     document.getElementById('contact-email').href = 'mailto:' + (settings.email || 'orchidtechclub@gmail.com');
     document.getElementById('contact-phone').textContent = settings.phone || '+977 980-0000000';
-    document.getElementById('contact-map').src = settings.mapUrl || 'https://www.openstreetmap.org/export/embed.html?bbox=87.28%2C26.79%2C87.32%2C26.83&layer=mapnik';
+    document.getElementById('contact-map').src = settings.mapUrl || 'https://www.google.com/maps?q=27.6689062,84.4317981&z=16&output=embed';
+    document.getElementById('contact-map-link').href = settings.mapLink || 'https://maps.app.goo.gl/ubW3cY4NGfbgAbUn9';
   } catch (e) {
     console.error('Failed to load contact settings', e);
   }

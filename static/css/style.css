@@ -673,6 +673,7 @@ textarea.form-control { resize: vertical; min-height: 110px; }
 }
 @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .login-panel img.mini-logo { width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 14px; box-shadow: 0 0 30px rgba(157,78,221,0.5); }
+.login-panel img.login-banner { width: 100%; max-width: 320px; height: auto; border-radius: 10px; margin: 0 auto 18px; box-shadow: 0 0 30px rgba(157,78,221,0.5); display: block; }
 .login-panel h3 { font-family: var(--font-head); margin: 0 0 4px; color: #fff; }
 .login-panel .sub { color: var(--text-dim); font-size: 0.8rem; margin-bottom: 24px; }
 .login-panel .form-group { text-align: left; }

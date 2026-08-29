@@ -133,7 +133,7 @@ async function otcRenderFooter() {
           <h5>Contact Info</h5>
           <ul>
             <li><i class="fas fa-envelope"></i> ${settings.email || 'orchidtechclub@gmail.com'}</li>
-            <li><i class="fas fa-map-marker-alt"></i> ${settings.address || 'Dharan-11, Chitwan, Nepal'}</li>
+            <li><i class="fas fa-map-marker-alt"></i> ${settings.address || 'Bharatpur-10, Chitwan, Nepal'}</li>
             <li><i class="fas fa-phone"></i> ${settings.phone || '+977 980-0000000'}</li>
           </ul>
         </div>
@@ -215,7 +215,7 @@ function otcBuildLoginModal() {
   overlay.innerHTML = `
     <div class="login-panel">
       <button class="close-login" id="otc-close-login"><i class="fas fa-times"></i></button>
-      <img src="${OTC_LOGO_DEFAULT}" class="mini-logo" alt="logo">
+      <img src="/static/images/orchid-banner.jpg" class="login-banner" alt="Orchid Tech Club">
       <h3>Admin Access</h3>
       <div class="sub">Restricted area — authorized personnel only</div>
       <form id="otc-login-form">

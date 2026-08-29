@@ -985,6 +985,7 @@ async function loadSettings() {
   document.getElementById('st-phone').value = settingsData.phone || '';
   document.getElementById('st-address').value = settingsData.address || '';
   document.getElementById('st-mapurl').value = settingsData.mapUrl || '';
+  document.getElementById('st-maplink').value = settingsData.mapLink || '';
   document.getElementById('so-facebook').value = socialData.facebook || '';
   document.getElementById('so-instagram').value = socialData.instagram || '';
   document.getElementById('so-linkedin').value = socialData.linkedin || '';
@@ -1016,6 +1017,7 @@ async function loadSettings() {
     settingsData.phone = document.getElementById('st-phone').value;
     settingsData.address = document.getElementById('st-address').value;
     settingsData.mapUrl = document.getElementById('st-mapurl').value;
+    settingsData.mapLink = document.getElementById('st-maplink').value;
     try { await OTCApi.saveContent('settings', settingsData); showToast('Contact info saved.'); }
     catch (e) { showToast(e.message, true); }
   };
