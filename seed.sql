@@ -42,13 +42,13 @@ INSERT IGNORE INTO news (id, title, category, `date`, excerpt, cover_image, stat
 
 -- ---------- BOD YEARS + MEMBERS ----------
 INSERT IGNORE INTO bod_years (id, title, is_current, sort_order) VALUES
-(1, '2025–2026', 0, 1),
+(1, '2025–2026 (FOUNDING BOARD)', 0, 1),
 (2, '2026–2027', 1, 2);
 -- NOTE: is_current is only applied by the INSERT above on a fresh install.
 -- On an existing install where these rows already exist, INSERT IGNORE is a
--- no-op, so also force the correct current flag explicitly:
+-- no-op, so also force the correct current flag and title explicitly:
 UPDATE bod_years SET is_current = 1 WHERE id = 2;
-UPDATE bod_years SET is_current = 0 WHERE id = 1;
+UPDATE bod_years SET is_current = 0, title = '2025–2026 (FOUNDING BOARD)' WHERE id = 1;
 
 -- photo_x/photo_y = face-detection focal point (% of image width/height) for
 -- each member's photo, so the hexagon frame's object-position always centers
@@ -57,10 +57,10 @@ UPDATE bod_years SET is_current = 0 WHERE id = 1;
 -- in the background) when each photo was added; editable afterwards from the
 -- admin panel's drag-to-reposition control.
 INSERT IGNORE INTO bod_members (id, year_id, name, position, photo, photo_x, photo_y, sort_order) VALUES
-(1, 1, 'Aayushma R.', 'President', '', 50.00, 35.00, 1),
-(2, 1, 'Sabnam Sherpa', 'Secretary', '', 50.00, 35.00, 2),
-(3, 1, 'Suprina T.', 'Treasurer', '', 50.00, 35.00, 3),
-(4, 1, 'Saugat Rai', 'Social Media Head', '', 50.00, 35.00, 4),
+(1, 1, 'Kriti Puri', 'President', '/static/images/bod-2025-26-kriti-puri.jpg', 47.10, 39.40, 1),
+(2, 1, 'Aditya Gupta', 'Secretary', '/static/images/bod-2025-26-aditya-gupta.jpg', 48.20, 39.00, 2),
+(3, 1, 'Samir Pathak', 'Treasurer', '/static/images/bod-2025-26-samir-pathak.jpg', 48.90, 38.30, 3),
+(4, 1, 'Manaswi Poudel', 'Social Media Head', '/static/images/bod-2025-26-manaswi-poudel.jpg', 49.20, 35.60, 4),
 (5, 2, 'Krishal Poudel', 'President', '/static/images/president-krishal-poudel.jpg', 50.30, 51.10, 1),
 (6, 2, 'Apekshay Gurung', 'Vice President', '/static/images/bod-2026-27-apekshay-gurung.jpg', 24.70, 33.40, 2),
 (7, 2, 'Subarna Poudel', 'Secretary', '/static/images/bod-2026-27-subarna-poudel.jpg', 50.40, 46.80, 3),
@@ -70,6 +70,10 @@ INSERT IGNORE INTO bod_members (id, year_id, name, position, photo, photo_x, pho
 (12, 2, 'Nischal Subedi', 'Event Manager', '/static/images/bod-2026-27-nischal-subedi.jpg', 65.70, 50.40, 7);
 -- On an existing install, INSERT IGNORE is a no-op for ids that already
 -- exist, so also force the photo_x/photo_y (and photo path) explicitly:
+UPDATE bod_members SET name='Kriti Puri', photo='/static/images/bod-2025-26-kriti-puri.jpg', photo_x=47.10, photo_y=39.40 WHERE id=1;
+UPDATE bod_members SET name='Aditya Gupta', photo='/static/images/bod-2025-26-aditya-gupta.jpg', photo_x=48.20, photo_y=39.00 WHERE id=2;
+UPDATE bod_members SET name='Samir Pathak', photo='/static/images/bod-2025-26-samir-pathak.jpg', photo_x=48.90, photo_y=38.30 WHERE id=3;
+UPDATE bod_members SET name='Manaswi Poudel', photo='/static/images/bod-2025-26-manaswi-poudel.jpg', photo_x=49.20, photo_y=35.60 WHERE id=4;
 UPDATE bod_members SET photo='/static/images/president-krishal-poudel.jpg', photo_x=50.30, photo_y=51.10 WHERE id=5;
 UPDATE bod_members SET name='Apekshay Gurung', position='Vice President', photo='/static/images/bod-2026-27-apekshay-gurung.jpg', photo_x=24.70, photo_y=33.40 WHERE id=6;
 UPDATE bod_members SET name='Subarna Poudel', position='Secretary', photo='/static/images/bod-2026-27-subarna-poudel.jpg', photo_x=50.40, photo_y=46.80 WHERE id=7;
